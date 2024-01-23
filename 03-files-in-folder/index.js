@@ -13,7 +13,7 @@ function readFolder () {
                 console.error(err);
                 return;
               }
-            console.log(`${path.parse(fileInFolder.name).name} -- ${path.parse(fileInFolder.name).ext} -- ${stats.size} kB`);                
+            console.log(`${path.parse(fileInFolder.name).name} -- ${path.parse(fileInFolder.name).ext} -- ${(Number(stats.size)/1000).toFixed(1)} kB`);                
           });
         };
       });
