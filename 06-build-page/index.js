@@ -1,6 +1,6 @@
-const { log } = require("console");
 const fs = require("fs");
 const path = require("path");
+let http = require('http')
 
 fs.mkdir(
   path.join(__dirname, "project-dist"),
@@ -25,52 +25,31 @@ fs.writeFile(
     },
 );
 
-const regexp = /\{([a-zA-Z]+)\}/ig;
 function replaceInFileHtml () {
   fs.readFile(
     path.join(__dirname, "template.html"), "utf-8",
-    (err, data) => {
+    (err, dataBasicFile) => {
       if(err) throw err;      
-      fs.readdir(
-        path.join(__dirname, "components"), {withFileTypes:true},
-        (err, fileHtmls) => {
-          if(err) throw err;
-          let arrFileReplaces = data.match(regexp);
-          arrFileReplaces.forEach(arrFileReplace => {
-          
-          fileHtmls.forEach(fileHtml => {
-          if(fileHtml.isFile()){
-            fs.stat(`06-build-page/components/${fileHtml.name}`,
-            (err) => {
-              if(err) throw err;
-              // console.log(arrFileReplace);
-              let name = path.parse(fileHtml.name).name
-              // console.log(name);
-              let dataText;
-              if(arrFileReplace === `{${name}}`){
-                dataText = data.replace(`{${arrFileReplace}}`,
-                fs.readFile(`06-build-page/components/${fileHtml.name}`, "utf-8",
-                  (err, data) => {
-                    if (err) throw err;
-                    return;
-                  }
-                ));
-                fs.writeFile(path.join(__dirname, "project-dist", "index.html"), dataText,
-                (err) => {
-                  if(err) throw err;
-                });
-              }
-              
+      fs.readdir(path.join(__dirname, "components"), {withFileTypes:true},
+      (err, fileTags) => {
+        if(err) throw err;
+        fileTags.forEach(fileTag => {
+          console.log(fileTag.name);
+          if(fileTag.isFile()){ 
+            fs.readFile(path.join(__dirname, "components", fileTag.name), "utf-8",
+              (err, add) => {
+                dataBasicFile = dataBasicFile.replace(`{{${fileTag.name.split('.')[0]}}}`, add)
+                if(err) throw err;
+                fs.writeFile(path.join(__dirname, "project-dist", "index.html"), dataBasicFile,
+                  (err) => {
+                    if(err) throw err;
+                  });
             })
-          }
-        })
+          }  
+        })      
       })
-          
-        }
-      )
-      
-  });
-}
+    }
+)}
 replaceInFileHtml();
 
 fs.writeFile(
